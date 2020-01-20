@@ -22,7 +22,6 @@ import static org.tensorflow.tools.ndarray.index.Indices.to;
 
 import java.io.DataInputStream;
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.zip.GZIPInputStream;
 import org.tensorflow.tools.Shape;
 import org.tensorflow.tools.buffer.DataBuffers;
@@ -31,24 +30,26 @@ import org.tensorflow.tools.ndarray.NdArrays;
 
 public class MnistDataset {
 
+  public static final int NUM_CLASSES = 10;
+
   public static MnistDataset create(int validationSize) {
     try {
-      ByteNdArray trainImages = readArchive(TRAIN_IMAGES_ARCHIVE);
-      ByteNdArray trainLabels = readArchive(TRAIN_LABELS_ARCHIVE);
+      ByteNdArray trainingImages = readArchive(TRAINING_IMAGES_ARCHIVE);
+      ByteNdArray trainingLabels = readArchive(TRAINING_LABELS_ARCHIVE);
       ByteNdArray testImages = readArchive(TEST_IMAGES_ARCHIVE);
       ByteNdArray testLabels = readArchive(TEST_LABELS_ARCHIVE);
 
       if (validationSize > 0) {
         return new MnistDataset(
-            trainImages.slice(from(validationSize)),
-            trainLabels.slice(from(validationSize)),
-            trainImages.slice(to(validationSize)),
-            trainLabels.slice(to(validationSize)),
+            trainingImages.slice(from(validationSize)),
+            trainingLabels.slice(from(validationSize)),
+            trainingImages.slice(to(validationSize)),
+            trainingLabels.slice(to(validationSize)),
             testImages,
             testLabels
         );
       }
-      return new MnistDataset(trainImages, trainLabels, null, null, testImages, testLabels);
+      return new MnistDataset(trainingImages, trainingLabels, null, null, testImages, testLabels);
 
     } catch (IOException e) {
       throw new AssertionError(e);
@@ -71,16 +72,11 @@ public class MnistDataset {
     return imageSize;
   }
 
-  public int numClasses() {
-    return NUM_CLASSES;
-  }
-
-  private static final String TRAIN_IMAGES_ARCHIVE = "train-images-idx3-ubyte.gz";
-  private static final String TRAIN_LABELS_ARCHIVE = "train-labels-idx1-ubyte.gz";
+  private static final String TRAINING_IMAGES_ARCHIVE = "train-images-idx3-ubyte.gz";
+  private static final String TRAINING_LABELS_ARCHIVE = "train-labels-idx1-ubyte.gz";
   private static final String TEST_IMAGES_ARCHIVE = "t10k-images-idx3-ubyte.gz";
   private static final String TEST_LABELS_ARCHIVE = "t10k-labels-idx1-ubyte.gz";
   private static final int TYPE_UBYTE = 0x08;
-  private static final int NUM_CLASSES = 10;
 
   private final ByteNdArray trainingImages;
   private final ByteNdArray trainingLabels;
